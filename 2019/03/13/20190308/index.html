@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false,"dimmer":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="在小程序里，我们知道分享功能只有分享到微信好友或者群，无法直接分享到朋友圈，但是我们可以生成分享图片，然后保存到相册，在发布朋友圈从相册选择图片，所以关键是如何生成需要的图片，使用 canvas 画布即可实现。 canvas 是微信小程序里的原生组件，相关属性及注意事项可参考 小程序官方文档 。一般生成分享图片需要显示文字和相应的图片，在结合不同位置和不同大小的需求形成特定样式的图片。 首先需要在">
+<meta name="keywords" content="小程序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="微信小程序使用 canvas 生成图片分享到朋友圈">
+<meta property="og:url" content="http://Anloney.github.io/2019/03/13/20190308/index.html">
+<meta property="og:site_name" content="安景帅的博客">
+<meta property="og:description" content="在小程序里，我们知道分享功能只有分享到微信好友或者群，无法直接分享到朋友圈，但是我们可以生成分享图片，然后保存到相册，在发布朋友圈从相册选择图片，所以关键是如何生成需要的图片，使用 canvas 画布即可实现。 canvas 是微信小程序里的原生组件，相关属性及注意事项可参考 小程序官方文档 。一般生成分享图片需要显示文字和相应的图片，在结合不同位置和不同大小的需求形成特定样式的图片。 首先需要在">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/1688279-63cd24e3d9401c66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-03-13T14:07:14.986Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="微信小程序使用 canvas 生成图片分享到朋友圈">
+<meta name="twitter:description" content="在小程序里，我们知道分享功能只有分享到微信好友或者群，无法直接分享到朋友圈，但是我们可以生成分享图片，然后保存到相册，在发布朋友圈从相册选择图片，所以关键是如何生成需要的图片，使用 canvas 画布即可实现。 canvas 是微信小程序里的原生组件，相关属性及注意事项可参考 小程序官方文档 。一般生成分享图片需要显示文字和相应的图片，在结合不同位置和不同大小的需求形成特定样式的图片。 首先需要在">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/1688279-63cd24e3d9401c66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+
+
+
+  <link rel="canonical" href="http://Anloney.github.io/2019/03/13/20190308/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>微信小程序使用 canvas 生成图片分享到朋友圈 | 安景帅的博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">安景帅的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Android</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://Anloney.github.io/2019/03/13/20190308/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="An">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="安景帅的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">微信小程序使用 canvas 生成图片分享到朋友圈
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-13 22:07:14" itemprop="dateCreated datePublished" datetime="2019-03-13T22:07:14+08:00">2019-03-13</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Code/" itemprop="url" rel="index"><span itemprop="name">Code</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在小程序里，我们知道分享功能只有分享到微信好友或者群，无法直接分享到朋友圈，但是我们可以生成分享图片，然后保存到相册，在发布朋友圈从相册选择图片，所以关键是如何生成需要的图片，使用 <strong><em>canvas</em></strong> 画布即可实现。</p>
+<p><strong>canvas</strong> 是微信小程序里的原生组件，相关属性及注意事项可参考 <a href="https://developers.weixin.qq.com/miniprogram/dev/component/canvas.html" target="_blank" rel="noopener">小程序官方文档</a> 。一般生成分享图片需要显示文字和相应的图片，在结合不同位置和不同大小的需求形成特定样式的图片。</p>
+<p>首先需要在 wxml 里写 canvas 的布局，例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;view class=&quot;canvas-box&quot;&gt;</span><br><span class="line">    &lt;canvas  style=&quot;width: &#123;&#123;sysWidth&#125;&#125;px;height: &#123;&#123;canvasHeight&#125;&#125;px;&quot;  canvas-id=&quot;shareCanvas&quot; /&gt;</span><br><span class="line">&lt;/view&gt;</span><br></pre></td></tr></table></figure></p>
+<p>为什么我会在 canvas 控件外在加一个 view ，这个跟需求有关，后边再说，如果只需要合成一张图并不需要分享或者点击预览大图的话可以只用一个 canvas 布局。我这里宽高都是计算出来的，因为生成的图片有要求，canvas 标签默认宽度300px、高度225px。canvas-id 是对应的每个画布的 id ，同一页面中的 canvas-id 不可重复，如果使用一个已经出现过的 canvas-id，该 canvas 标签对应的画布将被隐藏并不再正常工作。</p>
+<p>我当时的需求是在商品详情页点击分享按钮自动生成商品对应的分享图片，图片需要包含商品标题、价格、商品展示图片、商品详情页面的二维码（扫码可以直接进入当前商品详情），使用画布首先需要初始化画布，</p>
+<blockquote>
+<p>const canvasCtx = wx.createCanvasContext(‘shareCanvas’); //shareCanvas 是画布的 id</p>
+</blockquote>
+<p>然后绘制背景，如果想绘制一个宽高为屏幕宽度和屏幕高度的白色背景画布，可以这样写：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">canvasCtx.setFillStyle(&apos;white&apos;);</span><br><span class="line">canvasCtx.fillRect(0, 0, this.data.sysWidth, this.data.sysHeight);</span><br></pre></td></tr></table></figure></p>
+<p>开始绘制商品标题，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">canvasCtx.setFontSize(18);//字体大小</span><br><span class="line">canvasCtx.setFillStyle(&apos;#f9555c&apos;);//字体颜色</span><br><span class="line">canvasCtx.setTextAlign(&apos;left&apos;);//字体对齐方式</span><br><span class="line">canvasCtx.fillText(&apos;这是商品标题&apos;, 20, 30);//20是 x 轴的坐标，30 是 y 轴的坐标，以此确定字的位置</span><br></pre></td></tr></table></figure></p>
+<p>说一下字体对齐方式，left 表示商品标题的最左端坐标为 x 轴的坐标，也就是上边的20，如果对齐方式是 right 表示商品标题的最右端坐标为 20，不管标题多长结尾处都在20坐标点，center 表示标题的居中位置在20，即 x 轴上商品标题是以20作为对称点的。这点需要知道，否则想当然的认为是<strong>相对屏幕居左、居右、居中</strong>对齐就不对了。</p>
+<p>接下来画图，使用 CanvasContext.drawImage 方法，如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">canvasCtx.drawImage(imgUrl, xPoint ,y, 120, 120); //图片路径，x轴坐标，y轴坐标，图片宽，图片高</span><br></pre></td></tr></table></figure></p>
+<p>跟文字相似，只是方法不同，最后需要加上<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">canvasCtx.draw() //将之前在绘图上下文中的描述（路径、变形、样式）画到 canvas 中。</span><br></pre></td></tr></table></figure></p>
+<p>这样就完成了在画布上成功生成图片的功能。</p>
+<p>但是用画布生成图片还不行，由于在 canvas 上画图后图片只是显示在画布上，不是使用 image 展示，也就不能直接保存图片到相册，同时由于 canvas 是原生组件，显示在布局中会覆盖其他控件，所以可以隐藏 canvas ，但是 canvas 仍会占据空间位置，所以上边我在 canvas 外边加了一个 view 父布局，父布局属性如下，top 是为了让 canvas 距离顶端足够大，以隐藏 canvas ，如果使用 hidden 隐藏会仍占据位置，有空白区域。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.canvas-box &#123;</span><br><span class="line">    position: fixed;</span><br><span class="line">    top: 99999px;</span><br><span class="line">    left: 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最后需要将画布上的图片转换成图片，小程序官方提供了一个这样的方法：wx.canvasToTempFilePath ，可以直接得到一个图片路径，将此图片路径赋值给 image 组件再显示最终的图片。举个栗子？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">setTimeout(function() &#123;</span><br><span class="line">        wx.canvasToTempFilePath(&#123;</span><br><span class="line">                canvasId: &apos;shareCanvas&apos;,//定义的 canvas 的 id</span><br><span class="line">                success: function(res) &#123;</span><br><span class="line">                    var tempFilePath = res.tempFilePath;</span><br><span class="line">                    console.log(&quot;合成图片&quot;, tempFilePath)</span><br><span class="line">                    self.setData(&#123;</span><br><span class="line">                        shareImage: tempFilePath,</span><br><span class="line">                    &#125;)</span><br><span class="line">                &#125;,</span><br><span class="line">                fail: function(res) &#123;</span><br><span class="line">                    wx.hideLoading();</span><br><span class="line">                    console.log(&apos;生成失败&apos;, res)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">      &#125;, 50);</span><br></pre></td></tr></table></figure></p>
+<p>wxml 布局里需要一个 image 组件展示生成的图片<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;image style=&quot;height: &#123;&#123;canvasHeight&#125;&#125;px;&quot; mode=&quot;widthFix&quot; class=&apos;share_image&apos; src=&apos;&#123;&#123;shareImage&#125;&#125;&apos; /&gt;</span><br></pre></td></tr></table></figure></p>
+<p>上边转换的地方加了一个 setTimeout 定时器,在定时到期以后执行注册的回调函数,防止画布在 draw() 的时候没有完成就执行转换图片的方法会导致生成失败的问题，所以加了一个延迟。</p>
+<p>最后如果需要直接帮用户保存此图片，可以使用 <a href="https://developers.weixin.qq.com/miniprogram/dev/api/wx.saveImageToPhotosAlbum.html" target="_blank" rel="noopener"><strong>wx.saveImageToPhotosAlbum</strong></a> 方法，注意调用前需要用户授权。</p>
+<p>生成的图片如下(仅供参考):<br><img src="https://upload-images.jianshu.io/upload_images/1688279-63cd24e3d9401c66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="wxe1d4583743a72332.o6zAJs751ABnLFg0uEtANRV-UTk8.FYKl8lLLpYdj96a5924ea0f459cdba653f3e39993791.png"></p>
+<p>以上就是生成图片的方法，写的比较啰嗦，其实没有多麻烦，第一次接触可能感觉比较复杂，但是总代码量很少，有不懂的可以留言回复，感谢观看。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创分享，请打赏加个餐！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById(&quot;QR&quot;); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechat-reward-image.png" alt="An 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay-reward-image.jpg" alt="An 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/小程序/" rel="tag"># 小程序</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="An">
+            
+              <p class="site-author-name" itemprop="name">An</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/06d5b33fda59" title="https://www.jianshu.com/u/06d5b33fda59" rel="noopener" target="_blank">简书</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">An</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/three/three.min.js"></script>
+
+  
+  <script src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.1"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.1"></script>
+
+
+  
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
